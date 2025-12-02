@@ -1,0 +1,5 @@
+"president","n_speeches","economy_pct","security_pct","welfare_pct","governance_pct","values_pct","case"
+"Lyndon B. Johnson",6,16.6666666666667,16.6666666666667,0,50,16.6666666666667,"LBJ vs Reagan"
+"Ronald Reagan",8,62.5,0,0,25,12.5,"LBJ vs Reagan"
+"Barack Obama",8,100,0,0,0,0,"Bush vs Obama"
+"George W. Bush",8,0,75,0,25,0,"Bush vs Obama"

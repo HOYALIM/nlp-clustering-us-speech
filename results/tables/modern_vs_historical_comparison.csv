@@ -1,0 +1,15 @@
+"period","party","frame_main_auto","n","prop"
+"Modern (1990-2015)","Democratic","economy",8,0.533333333333333
+"Modern (1990-2015)","Democratic","governance",1,0.0666666666666667
+"Modern (1990-2015)","Democratic","welfare",6,0.4
+"Modern (1990-2015)","Republican","economy",2,0.181818181818182
+"Modern (1990-2015)","Republican","governance",3,0.272727272727273
+"Modern (1990-2015)","Republican","security",6,0.545454545454545
+"Historical (pre-1990)","Democratic","economy",10,0.131578947368421
+"Historical (pre-1990)","Democratic","governance",49,0.644736842105263
+"Historical (pre-1990)","Democratic","security",16,0.210526315789474
+"Historical (pre-1990)","Democratic","values",1,0.0131578947368421
+"Historical (pre-1990)","Republican","economy",10,0.119047619047619
+"Historical (pre-1990)","Republican","governance",72,0.857142857142857
+"Historical (pre-1990)","Republican","security",1,0.0119047619047619
+"Historical (pre-1990)","Republican","values",1,0.0119047619047619

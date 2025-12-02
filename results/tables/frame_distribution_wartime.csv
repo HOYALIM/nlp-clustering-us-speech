@@ -1,0 +1,19 @@
+"wartime","frame_main_auto","n","prop"
+"Civil War","governance",5,1
+"Korean War","economy",1,0.2
+"Korean War","governance",1,0.2
+"Korean War","security",3,0.6
+"Peacetime","economy",29,0.149484536082474
+"Peacetime","governance",140,0.721649484536082
+"Peacetime","security",18,0.0927835051546392
+"Peacetime","values",1,0.00515463917525773
+"Peacetime","welfare",6,0.0309278350515464
+"Vietnam War","economy",1,0.1
+"Vietnam War","governance",7,0.7
+"Vietnam War","security",1,0.1
+"Vietnam War","values",1,0.1
+"WWI","security",2,1
+"WWII","security",6,1
+"War on Terror","economy",3,0.272727272727273
+"War on Terror","governance",2,0.181818181818182
+"War on Terror","security",6,0.545454545454545

@@ -1,0 +1,11 @@
+"party","frame_main","n","prop"
+"Democratic","economy",4,0.363636363636364
+"Democratic","governance",1,0.0909090909090909
+"Democratic","security",4,0.363636363636364
+"Democratic","welfare",2,0.181818181818182
+"Democratic-Republican","governance",1,1
+"Nonpartisan","governance",1,1
+"Republican","economy",2,0.333333333333333
+"Republican","governance",1,0.166666666666667
+"Republican","security",3,0.5
+"Whig","security",1,1

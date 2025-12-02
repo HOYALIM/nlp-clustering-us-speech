@@ -1,0 +1,37 @@
+# R Data Files (too large for git)
+*.rds
+*.RData
+*.Rdata
+
+# R Session files
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+
+# RStudio files
+.Rproj.user/
+*.Rproj
+
+# PDF submissions (personal files)
+*.pdf
+
+# Temporary files
+*.tmp
+*.log
+.DS_Store
+
+# Results (optional - can include or exclude)
+# Uncomment to exclude results folder
+# results/
+
+# Data files (keep CSV, exclude large RDS)
+# Keep: SOTU_WithText.csv, ps2_q4_handcoding_sample_labeled.csv
+# Exclude: *.rds files
+
+# R Markdown cache (but keep .Rmd files)
+*_cache/
+*.html
+*.pdf
+!analysis.html
+

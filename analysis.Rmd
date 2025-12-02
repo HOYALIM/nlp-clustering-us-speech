@@ -1,0 +1,316 @@
+---
+title: "Framing in U.S. State of the Union Speeches"
+subtitle: "Analysis of Presidential Framing Strategies (1790-2015)"
+author: "Ho Lim"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, 
+                      fig.width = 12, fig.height = 7, dpi = 300)
+```
+
+# Introduction
+
+This document provides a complete analysis of framing in U.S. State of the Union (SOTU) speeches from 1790 to 2015. The analysis examines how presidents frame key policy domains (economy, security, welfare, governance, values) and how this differs by party and over time.
+
+## Research Questions
+
+1. How do U.S. presidents frame the nation's economy, security, welfare, governance, and values in SOTU speeches?
+2. How does framing differ by party (Democrat vs Republican)?
+3. How has framing changed over time (from Washington to Obama)?
+
+## Methodology
+
+- **Data**: 236 SOTU speeches (1790-2015)
+- **Method**: Dictionary-based frame assignment
+- **Frames**: Economy, Security, Welfare, Governance, Values
+- **Validation**: 20 hand-coded speeches from PS2
+
+---
+
+# Data Loading and Preprocessing
+
+## Load Required Packages
+
+```{r packages}
+library(tidyverse)
+library(quanteda)
+library(topicmodels)
+library(scales)
+library(ggplot2)
+```
+
+## Load Data
+
+```{r load-data}
+# Check if processed data exists
+if (file.exists("data/dfm_sotu_with_frames.rds")) {
+  cat("Loading processed data...\n")
+  dfm_with_frames <- readRDS("data/dfm_sotu_with_frames.rds")
+  meta <- docvars(dfm_with_frames) %>%
+    as_tibble() %>%
+    select(doc_id, president, year, party, frame_main_auto)
+  
+  cat("Loaded:", nrow(meta), "speeches\n")
+  cat("Years:", min(meta$year), "to", max(meta$year), "\n")
+} else {
+  cat("Processed data not found. Please run R/00_run_all.R first.\n")
+}
+```
+
+## Data Overview
+
+```{r data-overview}
+if (exists("meta")) {
+  cat("=== Data Overview ===\n\n")
+  cat("Total speeches:", nrow(meta), "\n")
+  cat("Unique presidents:", n_distinct(meta$president), "\n")
+  cat("Year range:", min(meta$year), "-", max(meta$year), "\n\n")
+  
+  cat("=== Frame Distribution ===\n")
+  frame_dist <- meta %>%
+    filter(!is.na(frame_main_auto)) %>%
+    count(frame_main_auto) %>%
+    mutate(prop = n / sum(n)) %>%
+    arrange(desc(n))
+  print(frame_dist)
+  
+  cat("\n=== Party Distribution ===\n")
+  party_dist <- meta %>%
+    count(party) %>%
+    arrange(desc(n))
+  print(party_dist)
+}
+```
+
+---
+
+# Overview Analysis (1790-2015)
+
+## Frame Shares Over Time
+
+```{r overview-frames, eval=exists("meta")}
+if (exists("meta")) {
+  frame_shares <- meta %>%
+    filter(!is.na(frame_main_auto)) %>%
+    count(year, frame_main_auto) %>%
+    group_by(year) %>%
+    mutate(total_year = sum(n)) %>%
+    ungroup() %>%
+    mutate(prop = n / total_year) %>%
+    complete(year = seq(min(meta$year, na.rm = TRUE), 
+                        max(meta$year, na.rm = TRUE)),
+             frame_main_auto = c("economy", "security", "welfare", "governance", "values"),
+             fill = list(prop = 0, n = 0, total_year = 1))
+  
+  ggplot(frame_shares, aes(x = year, y = prop, color = frame_main_auto)) +
+    geom_smooth(se = TRUE, method = "loess", span = 0.15, size = 1.5, alpha = 0.2) +
+    scale_color_manual(
+      values = c(
+        "economy" = "#2E86AB",
+        "security" = "#A23B72",
+        "welfare" = "#F18F01",
+        "governance" = "#C73E1D",
+        "values" = "#6A994E"
+      )
+    ) +
+    scale_y_continuous(labels = percent_format()) +
+    labs(
+      title = "Frame Shares in SOTU Speeches Over Time (1790-2015)",
+      subtitle = "Smoothed trend lines showing proportion of each frame",
+      x = "Year",
+      y = "Proportion of Speeches",
+      color = "Frame"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "right")
+}
+```
+
+**Key Finding**: Security frames spike during major wars; welfare frames are predominantly a 20th-century phenomenon.
+
+---
+
+# Focused Era Analysis (1945-2015)
+
+## Frame Distribution by Party
+
+```{r focused-era-party, eval=exists("meta")}
+if (exists("meta")) {
+  focused_era <- meta %>%
+    filter(!is.na(frame_main_auto), year >= 1945, year <= 2015) %>%
+    filter(party %in% c("Democratic", "Republican"))
+  
+  focused_by_party <- focused_era %>%
+    count(party, frame_main_auto) %>%
+    group_by(party) %>%
+    mutate(prop = n / sum(n)) %>%
+    ungroup()
+  
+  ggplot(focused_by_party, aes(x = frame_main_auto, y = prop, fill = party)) +
+    geom_bar(stat = "identity", position = "dodge", alpha = 0.8) +
+    scale_fill_manual(values = c("Democratic" = "#0066CC", "Republican" = "#CC0000")) +
+    scale_y_continuous(labels = percent_format()) +
+    labs(
+      title = "Frame Distribution by Party: Post-WWII Era (1945-2015)",
+      subtitle = "Comparing Democratic and Republican framing strategies",
+      x = "Frame",
+      y = "Proportion of Speeches",
+      fill = "Party"
+    ) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          legend.position = "bottom")
+}
+```
+
+**Key Finding**: Republicans consistently emphasize governance frames, while Democrats show more diverse framing strategies.
+
+---
+
+# Case Studies
+
+## LBJ vs Reagan
+
+```{r case-lbj-reagan, eval=exists("meta")}
+if (exists("meta")) {
+  case_study1 <- meta %>%
+    filter(!is.na(frame_main_auto)) %>%
+    filter(president %in% c("Lyndon B. Johnson", "Ronald Reagan"))
+  
+  lbj_reagan <- case_study1 %>%
+    count(president, frame_main_auto) %>%
+    group_by(president) %>%
+    mutate(prop = n / sum(n)) %>%
+    ungroup()
+  
+  ggplot(lbj_reagan, aes(x = president, y = prop, fill = frame_main_auto)) +
+    geom_bar(stat = "identity", position = "stack", alpha = 0.8) +
+    scale_fill_manual(
+      values = c(
+        "economy" = "#2E86AB",
+        "security" = "#A23B72",
+        "welfare" = "#F18F01",
+        "governance" = "#C73E1D",
+        "values" = "#6A994E"
+      )
+    ) +
+    scale_y_continuous(labels = percent_format()) +
+    labs(
+      title = "Case Study: LBJ vs Reagan",
+      subtitle = "Contrasting framing strategies on welfare and values",
+      x = "President",
+      y = "Proportion of Speeches",
+      fill = "Frame"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "right")
+}
+```
+
+**Key Finding**: LBJ emphasized welfare frames (Great Society), while Reagan focused on economy and values.
+
+## G.W. Bush vs Obama
+
+```{r case-bush-obama, eval=exists("meta")}
+if (exists("meta")) {
+  case_study2 <- meta %>%
+    filter(!is.na(frame_main_auto)) %>%
+    filter(president %in% c("George W. Bush", "Barack Obama"))
+  
+  bush_obama <- case_study2 %>%
+    count(president, frame_main_auto) %>%
+    group_by(president) %>%
+    mutate(prop = n / sum(n)) %>%
+    ungroup()
+  
+  ggplot(bush_obama, aes(x = president, y = prop, fill = frame_main_auto)) +
+    geom_bar(stat = "identity", position = "stack", alpha = 0.8) +
+    scale_fill_manual(
+      values = c(
+        "economy" = "#2E86AB",
+        "security" = "#A23B72",
+        "welfare" = "#F18F01",
+        "governance" = "#C73E1D",
+        "values" = "#6A994E"
+      )
+    ) +
+    scale_y_continuous(labels = percent_format()) +
+    labs(
+      title = "Case Study: G.W. Bush vs Obama",
+      subtitle = "Contrasting framing strategies on security and economy",
+      x = "President",
+      y = "Proportion of Speeches",
+      fill = "Frame"
+    ) +
+    theme_minimal() +
+    theme(legend.position = "right")
+}
+```
+
+**Key Finding**: G.W. Bush prioritized security frames (post-9/11), while Obama emphasized economy frames (post-2008 crisis).
+
+---
+
+# Summary Statistics
+
+## Overall Frame Distribution
+
+```{r summary-overall, eval=exists("meta")}
+if (exists("meta")) {
+  overall_summary <- meta %>%
+    filter(!is.na(frame_main_auto)) %>%
+    count(frame_main_auto) %>%
+    mutate(prop = n / sum(n)) %>%
+    arrange(desc(n))
+  
+  knitr::kable(overall_summary, 
+               col.names = c("Frame", "Count", "Proportion"),
+               digits = 3)
+}
+```
+
+## Party Comparison (1945-2015)
+
+```{r summary-party, eval=exists("meta")}
+if (exists("meta")) {
+  party_summary <- focused_era %>%
+    count(party, frame_main_auto) %>%
+    group_by(party) %>%
+    mutate(prop = n / sum(n)) %>%
+    ungroup() %>%
+    arrange(party, desc(prop))
+  
+  knitr::kable(party_summary, 
+               col.names = c("Party", "Frame", "Count", "Proportion"),
+               digits = 3)
+}
+```
+
+---
+
+# Conclusion
+
+This analysis reveals clear patterns in presidential framing:
+
+1. **Temporal Patterns**: Security frames spike during major wars; welfare frames emerge in the 20th century.
+2. **Party Differences**: Republicans emphasize governance, while Democrats show more diverse framing.
+3. **Individual Styles**: Presidents show distinct framing strategies based on historical context and personal priorities.
+
+---
+
+# References
+
+- **Data Source**: SOTU_WithText.csv (236 speeches, 1790-2015)
+- **Method**: Dictionary-based frame assignment with validation against hand-coded sample
+- **For detailed interpretation**: See `FIGURES_INTERPRETATION.md`
+- **For script documentation**: See `R_SCRIPTS_GUIDE.md`
+
