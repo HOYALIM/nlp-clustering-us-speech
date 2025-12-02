@@ -1,0 +1,17 @@
+"truth","pred","Freq"
+"economy","economy",2
+"governance","economy",2
+"security","economy",0
+"welfare","economy",2
+"economy","governance",0
+"governance","governance",0
+"security","governance",0
+"welfare","governance",0
+"economy","security",0
+"governance","security",6
+"security","security",1
+"welfare","security",0
+"economy","welfare",0
+"governance","welfare",0
+"security","welfare",0
+"welfare","welfare",0

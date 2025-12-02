@@ -35,7 +35,9 @@ if (file.exists("data/ps2_q4_handcoding_sample_labeled.csv")) {
 additional_files <- c(
   "data/additional_handcoding_labeled.csv",
   "data/stratified_handcoding_labeled.csv",
-  "data/key_periods_handcoding_labeled.csv"
+  "data/key_periods_handcoding_labeled.csv",
+  # New: full-sample speech-level hand-coding created by the user
+  "data/handcoding_SOTU_WithText - sotu_handcoding_mk.csv"
 )
 
 for (file_path in additional_files) {
